@@ -1,0 +1,50 @@
+const express = require('express');
+const nodemailer = require('nodemailer');
+const cors = require('cors');
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+// Configura tu cuenta de Gmail aquí
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'saludcmf@gmail.com', // Tu correo de Gmail
+    pass: 'glpdffipzgzgmiag',   // Tu contraseña de aplicación (sin espacios)
+  },
+});
+
+app.post('/enviar-receta', async (req, res) => {
+  const datos = req.body;
+  const mailOptions = {
+    from: 'saludcmf@gmail.com',         // Remitente
+    to: 'saludcmf@gmail.com',           // Destinatario
+    subject: 'Nueva Solicitud de Receta',
+    text: `
+Datos del Paciente:
+- Nombre: ${datos.nombrePaciente}
+- Apellido: ${datos.apellidoPaciente}
+- DNI: ${datos.dniPaciente}
+- Email: ${datos.emailPaciente}
+
+Solicitud de Receta:
+- Nombre Genérico: ${datos.nombreGenerico}
+- Nombre Comercial: ${datos.nombreComercial}
+- Dosis: ${datos.dosis}
+- Forma Farmacéutica: ${datos.formaFarmaceutica}
+- Requerimiento Mensual: ${datos.requerimientoMensual} UNIDADES
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    res.json({ ok: true, mensaje: 'Correo enviado correctamente' });
+  } catch (error) {
+    res.status(500).json({ ok: false, error: error.toString() });
+  }
+});
+
+app.listen(3000, () => {
+  console.log('Servidor backend escuchando en http://localhost:3000');
+});
