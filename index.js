@@ -50,3 +50,29 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Servidor backend escuchando en puerto ${PORT}`);
 });
+
+app.post('/enviar-turno', async (req, res) => {
+  const datos = req.body;
+  const mailOptions = {
+    from: 'saludcmf@gmail.com',
+    to: 'saludcmf@gmail.com',
+    subject: 'Nueva Solicitud de Turno',
+    text: `
+Datos del Paciente:
+- Nombre: ${datos.nombrePaciente}
+- Apellido: ${datos.apellidoPaciente}
+- DNI: ${datos.dniPaciente}
+- Email: ${datos.emailPaciente}
+
+Solicitud de Turno:
+- Especialidad: ${datos.especialidad}
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    res.json({ ok: true, mensaje: 'Correo de turno enviado correctamente' });
+  } catch (error) {
+    res.status(500).json({ ok: false, error: error.toString() });
+  }
+});
