@@ -1,25 +1,29 @@
 const express = require('express');
 const nodemailer = require('nodemailer');
 const cors = require('cors');
+const multer = require('multer');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Configura tu cuenta de Gmail aquí
+// Multer para archivos adjuntos
+const upload = multer({ storage: multer.memoryStorage() });
+
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'saludcmf@gmail.com', // Tu correo de Gmail
-    pass: 'glpdffipzgzgmiag',   // Tu contraseña de aplicación (sin espacios)
+    user: 'saludcmf@gmail.com',
+    pass: 'glpdffipzgzgmiag',
   },
 });
 
+// Solicitud de receta (sin adjunto)
 app.post('/enviar-receta', async (req, res) => {
   const datos = req.body;
   const mailOptions = {
-    from: 'saludcmf@gmail.com',         // Remitente
-    to: 'saludcmf@gmail.com',           // Destinatario
+    from: 'saludcmf@gmail.com',
+    to: 'saludcmf@gmail.com',
     subject: 'Nueva Solicitud de Receta',
     text: `
 Datos del Paciente:
@@ -46,14 +50,11 @@ Solicitud de Receta:
   }
 });
 
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-  console.log(`Servidor backend escuchando en puerto ${PORT}`);
-});
-
-app.post('/enviar-turno', async (req, res) => {
+// Solicitud de turno (con adjunto)
+app.post('/enviar-turno', upload.single('ordenMedica'), async (req, res) => {
   const datos = req.body;
+  const archivo = req.file;
+
   const mailOptions = {
     from: 'saludcmf@gmail.com',
     to: 'saludcmf@gmail.com',
@@ -64,10 +65,18 @@ Datos del Paciente:
 - Apellido: ${datos.apellidoPaciente}
 - DNI: ${datos.dniPaciente}
 - Email: ${datos.emailPaciente}
+- Cobertura: ${datos.obraSocial}
+- N° de afiliado: ${datos.nroAfiliado}
 
 Solicitud de Turno:
 - Especialidad: ${datos.especialidad}
-    `,
+`,
+    attachments: archivo
+      ? [{
+          filename: archivo.originalname,
+          content: archivo.buffer,
+        }]
+      : [],
   };
 
   try {
@@ -76,4 +85,9 @@ Solicitud de Turno:
   } catch (error) {
     res.status(500).json({ ok: false, error: error.toString() });
   }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Servidor backend escuchando en puerto ${PORT}`);
 });
