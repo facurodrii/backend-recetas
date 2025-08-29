@@ -5,20 +5,14 @@ const multer = require('multer');
 
 const app = express();
 app.use(cors());
-app.use(express.json());
 
-// Multer para archivos adjuntos
+// Multer para archivos adjuntos (solo para /enviar-turno)
 const upload = multer({ storage: multer.memoryStorage() });
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: 'saludcmf@gmail.com',
-    pass: 'glpdffipzgzgmiag',
-  },
-});
+// express.json SOLO para endpoints que reciben JSON
+app.use(express.json());
 
-// Solicitud de receta (sin adjunto)
+// Solicitud de receta (sin adjunto, usa JSON)
 app.post('/enviar-receta', async (req, res) => {
   const datos = req.body;
   const mailOptions = {
@@ -50,9 +44,9 @@ Solicitud de Receta:
   }
 });
 
-// Solicitud de turno (con adjunto)
+// Solicitud de turno (con adjunto, usa FormData)
 app.post('/enviar-turno', upload.single('ordenMedica'), async (req, res) => {
-  const datos = req.body;
+  const datos = req.body; // Los campos llegan como strings
   const archivo = req.file;
 
   const mailOptions = {
@@ -85,6 +79,14 @@ Solicitud de Turno:
   } catch (error) {
     res.status(500).json({ ok: false, error: error.toString() });
   }
+});
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'saludcmf@gmail.com',
+    pass: 'glpdffipzgzgmiag',
+  },
 });
 
 const PORT = process.env.PORT || 3000;
