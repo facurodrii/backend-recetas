@@ -27,14 +27,15 @@ Datos del Paciente:
 - Apellido: ${datos.apellidoPaciente}
 - DNI: ${datos.dniPaciente}
 - Email: ${datos.emailPaciente}
+- Cobertura: ${datos.obraSocial}
+- N° de afiliado: ${datos.nroAfiliado}
 
 Solicitud de Receta:
-- Nombre Genérico: ${datos.nombreGenerico}
 - Nombre Comercial: ${datos.nombreComercial}
 - Dosis: ${datos.dosis}
 - Forma Farmacéutica: ${datos.formaFarmaceutica}
 - Requerimiento Mensual: ${datos.requerimientoMensual} UNIDADES
-    `,
+`,
   };
 
   try {
