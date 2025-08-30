@@ -21,9 +21,31 @@ const transporter = nodemailer.createTransport({
 // express.json SOLO para endpoints que reciben JSON
 app.use(express.json());
 
-// Solicitud de receta (sin adjunto, usa JSON)
+// Solicitud de receta (ahora soporta varios medicamentos y observaciones)
 app.post('/enviar-receta', async (req, res) => {
   const datos = req.body;
+
+  // Procesa array de medicamentos
+  let medicamentosTexto = '';
+  if (Array.isArray(datos.medicamentos)) {
+    medicamentosTexto = datos.medicamentos.map((med, idx) => `
+Medicamento ${idx + 1}:
+- Nombre Genérico: ${med.nombreGenerico || med.nombreGenericoOtro || "undefined"}
+- Nombre Comercial: ${med.nombreComercial || med.nombreComercialOtro || "undefined"}
+- Dosis: ${med.dosis || med.dosisOtro || "undefined"}
+- Forma Farmacéutica: ${med.formaFarmaceutica || med.formaFarmaceuticaOtro || "undefined"}
+- Requerimiento Mensual: ${med.requerimientoMensual || "undefined"} UNIDADES
+`).join('\n');
+  } else {
+    medicamentosTexto = `
+- Nombre Genérico: ${datos.nombreGenerico || "undefined"}
+- Nombre Comercial: ${datos.nombreComercial || "undefined"}
+- Dosis: ${datos.dosis || "undefined"}
+- Forma Farmacéutica: ${datos.formaFarmaceutica || "undefined"}
+- Requerimiento Mensual: ${datos.requerimientoMensual || "undefined"} UNIDADES
+`;
+  }
+
   const mailOptions = {
     from: 'saludcmf@gmail.com',
     to: 'saludcmf@gmail.com',
@@ -38,10 +60,8 @@ Datos del Paciente:
 - N° de afiliado: ${datos.nroAfiliado}
 
 Solicitud de Receta:
-- Nombre Comercial: ${datos.nombreComercial}
-- Dosis: ${datos.dosis}
-- Forma Farmacéutica: ${datos.formaFarmaceutica}
-- Requerimiento Mensual: ${datos.requerimientoMensual} UNIDADES
+${medicamentosTexto}
+Observaciones: ${datos.observaciones || "-"}
 `,
   };
 
@@ -57,6 +77,20 @@ Solicitud de Receta:
 app.post('/enviar-turno', upload.single('ordenMedica'), async (req, res) => {
   const datos = req.body; // Los campos llegan como strings
   const archivo = req.file;
+
+  // Validación básica
+  if (
+    !datos.nombrePaciente ||
+    !datos.apellidoPaciente ||
+    !datos.dniPaciente ||
+    !datos.emailPaciente ||
+    !datos.obraSocial ||
+    !datos.nroAfiliado ||
+    !datos.especialidad ||
+    !archivo
+  ) {
+    return res.status(400).json({ ok: false, error: 'Faltan campos obligatorios.' });
+  }
 
   const mailOptions = {
     from: 'saludcmf@gmail.com',
@@ -74,12 +108,10 @@ Datos del Paciente:
 Solicitud de Turno:
 - Especialidad: ${datos.especialidad}
 `,
-    attachments: archivo
-      ? [{
-          filename: archivo.originalname,
-          content: archivo.buffer,
-        }]
-      : [],
+    attachments: [{
+      filename: archivo.originalname,
+      content: archivo.buffer,
+    }],
   };
 
   try {
