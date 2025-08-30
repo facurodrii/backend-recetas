@@ -9,9 +9,6 @@ app.use(cors());
 // Multer para archivos adjuntos (solo para /enviar-turno)
 const upload = multer({ storage: multer.memoryStorage() });
 
-// express.json SOLO para endpoints que reciben JSON
-app.use(express.json());
-
 // Nodemailer transporter
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -20,6 +17,9 @@ const transporter = nodemailer.createTransport({
     pass: 'glpdffipzgzgmiag',
   },
 });
+
+// express.json SOLO para endpoints que reciben JSON
+app.use(express.json());
 
 // Solicitud de receta (sin adjunto, usa JSON)
 app.post('/enviar-receta', async (req, res) => {
