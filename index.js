@@ -12,6 +12,15 @@ const upload = multer({ storage: multer.memoryStorage() });
 // express.json SOLO para endpoints que reciben JSON
 app.use(express.json());
 
+// Nodemailer transporter
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'saludcmf@gmail.com',
+    pass: 'glpdffipzgzgmiag',
+  },
+});
+
 // Solicitud de receta (sin adjunto, usa JSON)
 app.post('/enviar-receta', async (req, res) => {
   const datos = req.body;
@@ -61,3 +70,27 @@ Datos del Paciente:
 - Email: ${datos.emailPaciente}
 - Cobertura: ${datos.obraSocial}
 - N° de afiliado: ${datos.nroAfiliado}
+
+Solicitud de Turno:
+- Especialidad: ${datos.especialidad}
+`,
+    attachments: archivo
+      ? [{
+          filename: archivo.originalname,
+          content: archivo.buffer,
+        }]
+      : [],
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    res.json({ ok: true, mensaje: 'Correo de turno enviado correctamente' });
+  } catch (error) {
+    res.status(500).json({ ok: false, error: error.toString() });
+  }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Servidor backend escuchando en puerto ${PORT}`);
+});
