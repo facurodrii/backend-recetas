@@ -1,0 +1,90 @@
+{
+  "project_info": {
+    "project_number": "77729385748",
+    "project_id": "cmfsalud-8beda",
+    "storage_bucket": "cmfsalud-8beda.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:77729385748:android:a968127cce6d2e18fb8601",
+        "android_client_info": {
+          "package_name": "com.cmfsalud.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "77729385748-gki82hj1gkplq06fcgm9dfr0f3g6l3vu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.cmfsalud.app",
+            "certificate_hash": "4c15720a5b77ddf12c3123867bbae05f50a8db56"
+          }
+        },
+        {
+          "client_id": "77729385748-0brqku609em5cvdeea1jirjp9imioufb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDCgRkQOkicvvHwAXpfrjFDNvLS6GS9fmk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "77729385748-0brqku609em5cvdeea1jirjp9imioufb.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "77729385748-tapnk9n8b08qr6p6ce5efns4or4516tb.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.testFirebase"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:77729385748:android:01d24a5e2f44c769fb8601",
+        "android_client_info": {
+          "package_name": "com.example.test_firebase"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "77729385748-0brqku609em5cvdeea1jirjp9imioufb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDCgRkQOkicvvHwAXpfrjFDNvLS6GS9fmk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "77729385748-0brqku609em5cvdeea1jirjp9imioufb.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "77729385748-tapnk9n8b08qr6p6ce5efns4or4516tb.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.testFirebase"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

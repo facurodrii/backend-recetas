@@ -1,0 +1,44 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+}
+
+android {
+    namespace = "com.example.pruebasmfsalud"
+    compileSdk = flutter.compileSdkVersion
+    ndkVersion = flutter.ndkVersion
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8
+    }
+
+    defaultConfig {
+        applicationId = "com.cmfsalud.app" // Cambia esto si es necesario
+        minSdk = 24
+        targetSdk = flutter.targetSdkVersion
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
+    }
+
+    buildTypes {
+        release {
+            signingConfig = signingConfigs.debug
+        }
+    }
+}
+
+dependencies {
+    // Usa versiones específicas, no los signos '^'
+    implementation 'com.google.firebase:firebase-auth:21.0.5'  // Reemplaza con la última versión disponible
+    implementation 'com.google.firebase:firebase-core:21.1.0'  // Reemplaza con la última versión disponible
+}
+
+// Al final de este archivo, agrega el siguiente código
+apply plugin: 'com.google.gms.google-services'
+

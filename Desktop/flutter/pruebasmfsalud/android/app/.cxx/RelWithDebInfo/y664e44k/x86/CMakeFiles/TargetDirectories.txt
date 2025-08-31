@@ -1,0 +1,2 @@
+C:/Users/facun/Desktop/flutter/pruebasmfsalud/android/app/.cxx/RelWithDebInfo/y664e44k/x86/CMakeFiles/edit_cache.dir
+C:/Users/facun/Desktop/flutter/pruebasmfsalud/android/app/.cxx/RelWithDebInfo/y664e44k/x86/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,207 @@
+class Medicamento {
+  final String regAb;
+  final String claveCsf;
+  final String troquesAb;
+  final String principioActivo;
+  final String nombreComercial;
+  final String potencia;
+  final int contenido;
+
+  Medicamento({
+    required this.regAb,
+    required this.claveCsf,
+    required this.troquesAb,
+    required this.principioActivo,
+    required this.nombreComercial,
+    required this.potencia,
+    required this.contenido,
+  });
+
+  @override
+  String toString() {
+    return '$nombreComercial ($principioActivo, $potencia, $contenido unidades)';
+  }
+}
+
+List<Medicamento> medicamentos = [
+  Medicamento(
+    regAb: "57930",
+    claveCsf: "9667930",
+    troquesAb: "9667930",
+    principioActivo: "ACCESORIO",
+    nombreComercial: "ONE TOUCH DELICA PLUS",
+    potencia: "",
+    contenido: 100,
+  ),
+  Medicamento(
+    regAb: "37906",
+    claveCsf: "5417684",
+    troquesAb: "5417684",
+    principioActivo: "ACENOCUMAROL",
+    nombreComercial: "AZECAR",
+    potencia: "4 MG",
+    contenido: 30,
+  ),
+  Medicamento(
+    regAb: "53396",
+    claveCsf: "4155803",
+    troquesAb: "4155803",
+    principioActivo: "ACENOCUMAROL",
+    nombreComercial: "SINTRON",
+    potencia: "1 MG",
+    contenido: 20,
+  ),
+  Medicamento(
+    regAb: "22934",
+    claveCsf: "4267941",
+    troquesAb: "4267941",
+    principioActivo: "ACENOCUMAROL",
+    nombreComercial: "SINTRON",
+    potencia: "4 MG",
+    contenido: 20,
+  ),
+  Medicamento(
+    regAb: "42553",
+    claveCsf: "5713681",
+    troquesAb: "5713681",
+    principioActivo: "ACETILCISTEINA",
+    nombreComercial: "ACC EXPECTORANTE",
+    potencia: "600 MG",
+    contenido: 10,
+  ),
+  Medicamento(
+    regAb: "42584",
+    claveCsf: "5713682",
+    troquesAb: "5713682",
+    principioActivo: "ACETILCISTEINA",
+    nombreComercial: "ACC EXPECTORANTE",
+    potencia: "600 MG",
+    contenido: 20,
+  ),
+  Medicamento(
+    regAb: "46770",
+    claveCsf: "4323943",
+    troquesAb: "4323943",
+    principioActivo: "ACETILCISTEINA",
+    nombreComercial: "ACEMUK",
+    potencia: "200 MG",
+    contenido: 10,
+  ),
+  Medicamento(
+    regAb: "21546",
+    claveCsf: "0432401",
+    troquesAb: "4324010",
+    principioActivo: "ACETILCISTEINA",
+    nombreComercial: "ACEMUK",
+    potencia: "600 MG",
+    contenido: 10,
+  ),
+  Medicamento(
+    regAb: "49737",
+    claveCsf: "4324012",
+    troquesAb: "4324010",
+    principioActivo: "ACETILCISTEINA",
+    nombreComercial: "ACEMUK",
+    potencia: "600 MG",
+    contenido: 20,
+  ),
+  Medicamento(
+    regAb: "21547",
+    claveCsf: "4324012",
+    troquesAb: "4324011",
+    principioActivo: "ACETILCISTEINA",
+    nombreComercial: "ACEMUK",
+    potencia: "600 MG",
+    contenido: 20,
+  ),
+  Medicamento(
+    regAb: "45711",
+    claveCsf: "4321013",
+    troquesAb: "4324013",
+    principioActivo: "ACETILCISTEINA",
+    nombreComercial: "ACEMUK",
+    potencia: "600 MG",
+    contenido: 60,
+  ),
+  Medicamento(
+    regAb: "45712",
+    claveCsf: "4324014",
+    troquesAb: "4324014",
+    principioActivo: "ACETILCISTEINA",
+    nombreComercial: "ACEMUK",
+    potencia: "600 MG",
+    contenido: 90,
+  ),
+  Medicamento(
+    regAb: "29676",
+    claveCsf: "4837351",
+    troquesAb: "4837351",
+    principioActivo: "ACETILCISTEINA",
+    nombreComercial: "ACEMUK",
+    potencia: "",
+    contenido: 100,
+  ),
+  Medicamento(
+    regAb: "54594",
+    claveCsf: "5459971",
+    troquesAb: "5459971",
+    principioActivo: "ACETILCISTEINA",
+    nombreComercial: "ACETILCISTEINA",
+    potencia: "600 MG",
+    contenido: 10,
+  ),
+  Medicamento(
+    regAb: "59681",
+    claveCsf: "5459971",
+    troquesAb: "5459971",
+    principioActivo: "ACETILCISTEINA",
+    nombreComercial: "ACETILCISTEINA",
+    potencia: "600 MG",
+    contenido: 10,
+  ),
+  Medicamento(
+    regAb: "49533",
+    claveCsf: "5887681",
+    troquesAb: "5887681",
+    principioActivo: "ACETILCISTEINA",
+    nombreComercial: "BROOKOLUM",
+    potencia: "200 MG",
+    contenido: 12,
+  ),
+  Medicamento(
+    regAb: "54498",
+    claveCsf: "5887843",
+    troquesAb: "5887843",
+    principioActivo: "ACETILCISTEINA",
+    nombreComercial: "BROOKOLUM",
+    potencia: "600 MG",
+    contenido: 10,
+  ),
+  Medicamento(
+    regAb: "44931",
+    claveCsf: "5887841",
+    troquesAb: "5887841",
+    principioActivo: "ACETILCISTEINA",
+    nombreComercial: "BROOKOLUM",
+    potencia: "600 MG",
+    contenido: 12,
+  ),
+  Medicamento(
+    regAb: "49990",
+    claveCsf: "51251312",
+    troquesAb: "5125131",
+    principioActivo: "ACETILCISTEINA",
+    nombreComercial: "CISTEFORT",
+    potencia: "600 MG",
+    contenido: 10,
+  ),
+  Medicamento(
+    regAb: "48783",
+    claveCsf: "5125131",
+    troquesAb: "5125132",
+    principioActivo: "ACETILCISTEINA",
+    nombreComercial: "CISTEFORT",
+    potencia: "600 MG",
+    contenido: 20,
+  ),
+];
