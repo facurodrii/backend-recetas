@@ -1,24 +1,17 @@
-{
+﻿{
   "name": "backend-recetas",
   "version": "1.0.0",
-  "description": "Backend para CMF Salud - Sistema de recetas y turnos médicos",
+  "description": "Backend para CMF Salud",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "start": "node index.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "nodemailer": "^6.9.7",
-    "cors": "^2.8.5",
-    "multer": "^1.4.5-lts.1"
-  },
-  "devDependencies": {
-    "nodemon": "^3.0.2"
+    "express": "4.18.2",
+    "nodemailer": "6.9.7",
+    "cors": "2.8.5"
   },
   "engines": {
-    "node": ">=18.0.0"
-  },
-  "author": "facurodrii",
-  "license": "MIT"
+    "node": "18"
+  }
 }

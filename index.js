@@ -1,5 +1,4 @@
-@"
-const express = require('express');
+﻿const express = require('express');
 const nodemailer = require('nodemailer');
 const cors = require('cors');
 
@@ -8,7 +7,7 @@ app.use(cors());
 app.use(express.json());
 
 // Configura tu cuenta de Gmail aquí
-const transporter = nodemailer.createTransporter({
+const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: 'saludcmf@gmail.com', // Tu correo de Gmail
@@ -18,10 +17,10 @@ const transporter = nodemailer.createTransporter({
 
 app.post('/enviar-receta', async (req, res) => {
   const datos = req.body;
-  
+
   // Procesar medicamentos - puede ser array o objeto individual
   let medicamentosTexto = '';
-  
+
   if (datos.medicamentos && Array.isArray(datos.medicamentos)) {
     // Si es un array de medicamentos
     medicamentosTexto = datos.medicamentos.map((med, index) => `
@@ -73,7 +72,7 @@ ${medicamentosTexto}
 
 app.post('/enviar-turno', async (req, res) => {
   const datos = req.body;
-  
+
   const mailOptions = {
     from: 'saludcmf@gmail.com',
     to: 'saludcmf@gmail.com',
@@ -110,4 +109,3 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Servidor backend escuchando en puerto ${PORT}`);
 });
-"@ | Out-File -FilePath index.js -Encoding UTF8
