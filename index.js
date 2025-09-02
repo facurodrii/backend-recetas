@@ -1,7 +1,6 @@
 const express = require('express');
 const nodemailer = require('nodemailer');
 const cors = require('cors');
-const multer = require('multer');
 
 const app = express();
 // CORS: permitir frontend local y dominios de prod
@@ -24,8 +23,7 @@ app.use(cors({
 // Manejo explícito de preflight
 app.options('*', cors());
 
-// Multer para archivos adjuntos (solo para /enviar-turno)
-const upload = multer({ storage: multer.memoryStorage() });
+// No se requieren adjuntos: los endpoints reciben JSON
 
 // Nodemailer transporter
 const transporter = nodemailer.createTransport({
@@ -56,9 +54,10 @@ app.post('/enviar-receta', async (req, res) => {
 
     // Procesa array de medicamentos
     let medicamentosTexto = '';
-  if (Array.isArray(datos.medicamentos)) {
+    if (Array.isArray(datos.medicamentos)) {
       medicamentosTexto = datos.medicamentos.map((med, idx) => `
 Medicamento ${idx + 1}:
+- Nombre Genérico: ${med.nombreGenerico || "No especificado"}
 - Nombre Comercial: ${med.nombreComercial || "No especificado"}
 - Dosis: ${med.dosis || "No especificado"}
 - Forma Farmacéutica: ${med.formaFarmaceutica || "No especificado"}
@@ -67,6 +66,7 @@ Medicamento ${idx + 1}:
     } else {
       // Compatibilidad con formato anterior (un solo medicamento)
       medicamentosTexto = `
+- Nombre Genérico: ${datos.nombreGenerico || "No especificado"}
 - Nombre Comercial: ${datos.nombreComercial || "No especificado"}
 - Dosis: ${datos.dosis || "No especificado"}
 - Forma Farmacéutica: ${datos.formaFarmaceutica || "No especificado"}
@@ -103,28 +103,21 @@ Observaciones: ${datos.observaciones || "Ninguna"}
   }
 });
 
-// Solicitud de turno (con adjunto, usa FormData)
-app.post('/enviar-turno', upload.single('ordenMedica'), async (req, res) => {
+// Solicitud de turno (JSON simple, sin archivos adjuntos)
+app.post('/enviar-turno', async (req, res) => {
   try {
-    const datos = req.body;
-    const archivo = req.file;
-    
-    console.log('Datos turno recibidos:', datos);
-    console.log('Archivo recibido:', archivo ? archivo.originalname : 'No hay archivo');
+    const datos = req.body || {};
+    console.log('Datos turno recibidos:', JSON.stringify(datos, null, 2));
 
-    // Validación básica
-    if (
-      !datos.nombrePaciente ||
-      !datos.apellidoPaciente ||
-      !datos.dniPaciente ||
-      !datos.emailPaciente ||
-      !datos.obraSocial ||
-      !datos.nroAfiliado ||
-      !datos.especialidad ||
-      !archivo
-    ) {
-      return res.status(400).json({ ok: false, error: 'Faltan campos obligatorios.' });
+    // Validación básica (sin archivo)
+    if (!datos.nombrePaciente || !datos.apellidoPaciente || !datos.dniPaciente || !datos.emailPaciente || !datos.obraSocial) {
+      return res.status(400).json({ ok: false, error: 'Faltan datos mínimos del paciente.' });
     }
+
+    const especialidad = datos.especialidad || datos.tipoConsulta || 'No especificada';
+    const fechaPreferida = datos.fecha || datos.fechaPreferida || 'No especificada';
+    const horarioPreferido = datos.horario || datos.horarioPreferido || 'No especificado';
+    const comentarios = datos.comentarios || datos.observaciones || 'Sin comentarios';
 
     const mailOptions = {
       from: 'saludcmf@gmail.com',
@@ -137,15 +130,14 @@ Datos del Paciente:
 - DNI: ${datos.dniPaciente}
 - Email: ${datos.emailPaciente}
 - Cobertura: ${datos.obraSocial}
-- N° de afiliado: ${datos.nroAfiliado}
+- N° de afiliado: ${datos.nroAfiliado || datos.numeroAfiliado || 'No especificado'}
 
 Solicitud de Turno:
-- Especialidad: ${datos.especialidad}
+- Especialidad/Tipo: ${especialidad}
+- Fecha preferida: ${fechaPreferida}
+- Horario preferido: ${horarioPreferido}
+- Comentarios: ${comentarios}
 `,
-      attachments: [{
-        filename: archivo.originalname,
-        content: archivo.buffer,
-      }],
     };
 
     await transporter.sendMail(mailOptions);
@@ -158,10 +150,6 @@ Solicitud de Turno:
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Servidor backend escuchando en puerto ${PORT}`);
-});
-
 app.listen(PORT, () => {
   console.log(`Servidor backend escuchando en puerto ${PORT}`);
 });
