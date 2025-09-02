@@ -1,134 +1,134 @@
+/* Fondo y tarjeta */
 .solicitud-bg {
-  min-height: 100vh;
-  background: linear-gradient(to bottom, #043A66, #29E7B9);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 100%;
 }
 
 .solicitud-form {
-  background: linear-gradient(to bottom, #043A66, #29E7B9);
-  padding: 32px;
+  width: 100%;
+  max-width: 960px;
+  background: rgba(255, 255, 255, 0.9);
   border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.1);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  max-width: 520px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(6px);
 }
 
+.solicitud-title {
+  color: #ffffff;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.35);
+  margin-bottom: 12px;
+  font-size: 22px;
+  text-align: center;
+}
+
+.user-info-compact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  justify-content: center;
+  color: #e6f2fa;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+/* Filas y campos */
 .solicitud-row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.solicitud-row.cols-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.solicitud-input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(4, 58, 102, 0.25);
+  background: #ffffff;
+  outline: none;
+  font-size: 14px;
+}
+
+.solicitud-input:focus {
+  border-color: #29E7B9;
+  box-shadow: 0 0 0 3px rgba(41, 231, 185, 0.25);
+}
+
+.row-end {
   display: flex;
-  gap: 16px;
-  width: 100%;
-  margin-bottom: 16px;
+  justify-content: flex-end;
 }
 
-.solicitud-input, .solicitud-row select {
-  flex: 1;
-  min-width: 0;
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #29E7B9;
-  font-size: 16px;
-  background: #fff;
-  margin-bottom: 0;
-}
-
+/* Botones */
 .solicitud-btn {
-  background: #043A66;
-  color: #fff;
-  font-weight: bold;
-  border: none;
-  border-radius: 8px;
-  padding: 14px 0;
-  font-size: 18px;
-  cursor: pointer;
-  margin-top: 10px;
-  transition: background 0.2s;
   width: 100%;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid #29E7B9;
+  background: #043A66;
+  color: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.solicitud-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(4, 58, 102, 0.25);
+}
+
+.solicitud-btn.secondary {
+  background: #ffffff;
+  color: #043A66;
+  margin: 8px 0 12px;
+}
+
+.solicitud-btn.ghost {
+  width: auto;
+  background: transparent;
+  color: #043A66;
 }
 
 .solicitud-btn:disabled {
-  background: #aaa;
+  opacity: 0.7;
   cursor: not-allowed;
 }
 
-/* Cartel flotante */
+/* Alertas */
 .alert-custom {
   position: fixed;
-  top: 50%;
+  top: 16px;
   left: 50%;
-  transform: translate(-50%, -50%);
-  background: #fff;
-  color: #000000;
-  padding: 18px 32px;
-  border-radius: 8px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.15);
-  font-size: 16px;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.95);
+  color: #043A66;
+  border: 1px solid #29E7B9;
+  border-radius: 10px;
+  padding: 10px 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  z-index: 1000;
 }
 
 .alert-close {
-  background: #fff;
-  color: #043A66;
+  margin-left: 12px;
+  background: transparent;
   border: none;
-  border-radius: 50%;
-  width: 28px;
-  height: 28px;
-  font-weight: bold;
   cursor: pointer;
+  color: #c0392b;
+  font-weight: 700;
 }
 
-/* --- RESPONSIVE --- */
-@media (max-width: 600px) {
-  .solicitud-bg {
-    align-items: flex-start;
-    padding-top: 24px;
-    min-height: 100vh;
-    width: 100vw;
-    overflow-x: hidden;
-  }
+/* Responsive */
+@media (max-width: 768px) {
   .solicitud-form {
-    max-width: 98vw;
     padding: 16px;
-    border-radius: 10px;
-    font-size: 1rem;
   }
-  .solicitud-row {
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 12px;
-  }
-  .solicitud-input, .solicitud-row select {
-    font-size: 1rem;
-    padding: 10px;
-    width: 100%;
-  }
-  .solicitud-btn {
-    font-size: 1rem;
-    padding: 12px;
-  }
-  h2 {
-    font-size: 1.2rem;
-  }
-  .alert-custom {
-    font-size: 1rem;
-    padding: 10px;
-    max-width: 90vw;
-    word-break: break-word;
+  .solicitud-row.cols-3 {
+    grid-template-columns: 1fr;
   }
 }
-/* Imágenes y fondo siempre adaptables */
-.solicitud-bg {
-  background-size: cover;
-  background-position: center;
-  min-height: 100vh;
-  width: 100vw;
-  overflow-x: hidden;
-}
-/* --- FIN RESPONSIVE --- */

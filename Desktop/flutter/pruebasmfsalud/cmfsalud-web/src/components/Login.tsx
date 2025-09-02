@@ -1,97 +1,130 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
-import { auth, db } from "../firebase";
-import "./Login.css";
+import React, { useState } from 'react';
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
+import { auth } from '../firebase.ts';
+import { useNavigate, Link } from 'react-router-dom';
+import './Login.css';
 
 const Login: React.FC = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [info, setInfo] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [mensaje, setMensaje] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) {
-      setMensaje("Por favor, completa todos los campos.");
-      return;
-    }
     setIsLoading(true);
+    setError('');
+    setInfo('');
+
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-
-      // Validar email verificado
-      if (!user.emailVerified) {
-        setMensaje("Debes verificar tu correo antes de ingresar. Revisa tu bandeja de entrada.");
-        setIsLoading(false);
-        return;
+  const userCredential = await signInWithEmailAndPassword(auth, email, password);
+  console.log('Usuario logueado:', userCredential.user.email);
+  navigate('/inicio');
+    } catch (error: any) {
+      console.error('Error de login:', error);
+      let errorMessage = 'Error al iniciar sesión';
+      
+      // Manejo de errores específicos de Firebase
+      switch (error.code) {
+        case 'auth/user-not-found':
+          errorMessage = 'No existe una cuenta con este email';
+          break;
+        case 'auth/wrong-password':
+          errorMessage = 'Contraseña incorrecta';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'Email inválido';
+          break;
+        case 'auth/user-disabled':
+          errorMessage = 'Esta cuenta ha sido deshabilitada';
+          break;
+        case 'auth/too-many-requests':
+          errorMessage = 'Demasiados intentos fallidos. Intenta más tarde';
+          break;
+        default:
+          errorMessage = error.message || 'Error desconocido';
       }
-
-      const userDoc = await getDoc(doc(db, "users", user.uid));
-      const userData = userDoc.data();
-
-      if (userData) {
-        navigate("/home", { state: userData });
-      } else {
-        setMensaje("No se encontraron datos del usuario.");
-      }
-    } catch (e) {
-      setMensaje("Error al iniciar sesión. Verifica tus credenciales.");
+      
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleForgotPassword = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    setError('');
+    setInfo('');
+    try {
+      if (!email) {
+        setError('Ingresa tu email para recuperar la contraseña');
+        return;
+      }
+      await sendPasswordResetEmail(auth, email);
+      setInfo('Te enviamos un correo para restablecer tu contraseña');
+    } catch (err: any) {
+      const msg = err?.message || 'No se pudo enviar el correo de recuperación';
+      setError(msg);
+    }
+  };
+
   return (
-    <div className="login-bg">
-      {/* Cartel flotante personalizado */}
-      {mensaje && (
-        <div className="alert-custom">
-          {mensaje}
-          <button onClick={() => setMensaje(null)} className="alert-close">X</button>
+    <div className="login-container">
+      <div className="login-box">
+        <div className="logo">
+          <img src="/Logo.png" alt="CMF Salud" className="logo-image" />
+          <div className="logo-text">
+            <span className="cmf">CMF</span>
+            <span className="salud">SALUD</span>
+          </div>
         </div>
-      )}
-      <form className="login-form" onSubmit={handleLogin}>
-        <img src="/logo.png" alt="Logo" className="login-logo" />
-        <input
-          type="email"
-          placeholder="Ingresa tu usuario"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          required
-          className="login-input"
-        />
-        <input
-          type="password"
-          placeholder="Ingresa tu contraseña"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          required
-          className="login-input"
-        />
-        {isLoading ? (
-          <div className="login-loading">Cargando...</div>
-        ) : (
-          <button type="submit" className="login-btn">Iniciar sesión</button>
-        )}
-        <button
-          type="button"
-          className="login-link"
-          onClick={() => navigate("/reset-password")}
-        >
-          ¿Olvidaste tu contraseña?
-        </button>
-        <button
-          type="button"
-          className="login-link"
-          onClick={() => navigate("/register")}
-        >
-          Registrarse
-        </button>
-      </form>
+        {error && <div className="error-message">{error}</div>}
+        {info && <div className="info-message">{info}</div>}
+        
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              disabled={isLoading}
+              placeholder="Ingresa tu usuario"
+              autoComplete="username email"
+              inputMode="email"
+              enterKeyHint="next"
+              aria-label="Email"
+            />
+          </div>
+          
+          <div className="form-group">
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              disabled={isLoading}
+              placeholder="Ingresa tu contraseña"
+              autoComplete="current-password"
+              enterKeyHint="go"
+              aria-label="Contraseña"
+            />
+          </div>
+          
+          <button type="submit" disabled={isLoading}>
+            {isLoading ? 'Iniciando…' : 'Iniciar sesión'}
+          </button>
+        </form>
+        
+        <div className="auth-links">
+          <a href="#" onClick={handleForgotPassword} className="forgot-link">¿Olvidaste tu contraseña?</a>
+          <Link to="/register" className="register-link">Registrarse</Link>
+        </div>
+      </div>
     </div>
   );
 };

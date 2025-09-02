@@ -5,6 +5,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
 }
 
 code {
@@ -12,12 +14,30 @@ code {
     monospace;
 }
 
-/* --- RESPONSIVE --- */
-@media (max-width: 600px) {
-  body {
-    font-size: 1rem;
-    padding: 0;
-    margin: 0;
-  }
+* {
+  box-sizing: border-box;
 }
-/* --- FIN RESPONSIVE --- */
+
+.medical-card {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.medical-card:hover {
+  transform: translateY(-5px);
+}
+
+.gradient-bg {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.medical-green {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+}
+
+.medical-blue {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+}

@@ -4,7 +4,25 @@ const cors = require('cors');
 const multer = require('multer');
 
 const app = express();
-app.use(cors());
+// CORS: permitir frontend local y dominios de prod
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://cmfsalud-web.onrender.com',
+  'https://cmfsalud.vercel.app',
+];
+app.use(cors({
+  origin: function(origin, callback) {
+    // permitir solicitudes sin origin (e.g. Postman) o si coincide con allowedOrigins
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'));
+  },
+  methods: ['GET','POST','OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+// Manejo explícito de preflight
+app.options('*', cors());
 
 // Multer para archivos adjuntos (solo para /enviar-turno)
 const upload = multer({ storage: multer.memoryStorage() });
@@ -18,7 +36,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// express.json SOLO para endpoints que reciben JSON
+// express.json para endpoints JSON
 app.use(express.json());
 
 // Ruta básica para verificar que el servidor funciona
@@ -38,10 +56,9 @@ app.post('/enviar-receta', async (req, res) => {
 
     // Procesa array de medicamentos
     let medicamentosTexto = '';
-    if (Array.isArray(datos.medicamentos)) {
+  if (Array.isArray(datos.medicamentos)) {
       medicamentosTexto = datos.medicamentos.map((med, idx) => `
 Medicamento ${idx + 1}:
-- Nombre Genérico: ${med.nombreGenerico || "No especificado"}
 - Nombre Comercial: ${med.nombreComercial || "No especificado"}
 - Dosis: ${med.dosis || "No especificado"}
 - Forma Farmacéutica: ${med.formaFarmaceutica || "No especificado"}
@@ -50,7 +67,6 @@ Medicamento ${idx + 1}:
     } else {
       // Compatibilidad con formato anterior (un solo medicamento)
       medicamentosTexto = `
-- Nombre Genérico: ${datos.nombreGenerico || "No especificado"}
 - Nombre Comercial: ${datos.nombreComercial || "No especificado"}
 - Dosis: ${datos.dosis || "No especificado"}
 - Forma Farmacéutica: ${datos.formaFarmaceutica || "No especificado"}
@@ -62,14 +78,14 @@ Medicamento ${idx + 1}:
       from: 'saludcmf@gmail.com',
       to: 'saludcmf@gmail.com',
       subject: 'Nueva Solicitud de Receta',
-      text: `
+  text: `
 Datos del Paciente:
 - Nombre: ${datos.nombrePaciente || "No especificado"}
 - Apellido: ${datos.apellidoPaciente || "No especificado"}
 - DNI: ${datos.dniPaciente || "No especificado"}
 - Email: ${datos.emailPaciente || "No especificado"}
 - Cobertura: ${datos.obraSocial || "No especificado"}
-- N° de afiliado: ${datos.nroAfiliado || "No especificado"}
+- N° de afiliado: ${datos.nroAfiliado || datos.numeroAfiliado || "No especificado"}
 
 Solicitud de Receta:
 ${medicamentosTexto}

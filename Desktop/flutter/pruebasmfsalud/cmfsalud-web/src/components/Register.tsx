@@ -1,208 +1,211 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
-import { auth, db } from "../firebase";
-import "./Login.css"; // Reutiliza los estilos del login
+import React, { useMemo, useState } from 'react';
+import { createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from 'firebase/auth';
+import { auth, db } from '../firebase.ts';
+import { useNavigate, Link } from 'react-router-dom';
+import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
+import './Register.css';
 
-const coberturas = [
-  "AMEBPBA", "AMFFA", "CASA", "CAJA DE SEGURIDAD SOCIAL PARA ESCRIBANOS DE LA PROVINCIA DE BUENOS AIRES",
-  "CAJA NOTARIAL COMPLEMENTARIA DE SEGURIDAD SOCIAL", "CARDIOLOGÍA", "CONFERENCIA EPISCOPAL ARGENTINA",
-  "DASMI", "DASUTEN", "FUNDACION COMEI", "IOMA", "JERARQUICOS SALUD", "MEDIFÉ", "MOA",
-  "OPDEA", "OSAPM", "OSDE", "OSPEPBA", "OSPJN", "OSA", "OSETYA", "PAMI", "SADAIC",
-  "SANCOR SALUD", "SWISS MEDICAL"
-].sort();
+type FormState = {
+  firstName: string;
+  lastName: string;
+  dni: string;
+  birthDate: string; // yyyy-mm-dd
+  phone: string;
+  cobertura: string;
+  afiliado: string;
+  email: string;
+  password: string;
+};
 
-function esContraseñaFuerte(password: string): boolean {
-  const regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
-  return regex.test(password);
-}
+const OBRAS = [
+  'OSDE',
+  'Swiss Medical',
+  'SanCor Salud',
+  'IOMA',
+  'PAMI',
+  'Medifé',
+  'OSPJN',
+  'COMEI',
+  'Caja de la Abogacía (PBA)',
+  'SADAIC',
+  'OPDEA',
+  'DASUTeN',
+  'Conferencia Episcopal Argentina',
+  'Caja Notarial',
+  'DASMI',
+  'Jerárquicos Salud',
+  'OSAPM',
+  'Salud para Todos',
+  'La Mutual',
+  'Techint',
+  'APSOT',
+  'AMFFA Salud',
+  'OSPEBA',
+  'OSA (Actores)',
+  'OSETYA',
+  'MOA',
+  'Caja de Seguridad Social',
+  'Particular',
+];
 
 const Register: React.FC = () => {
-  const [nombre, setNombre] = useState("");
-  const [apellido, setApellido] = useState("");
-  const [dni, setDni] = useState("");
-  const [fechaNacimiento, setFechaNacimiento] = useState("");
-  const [telefono, setTelefono] = useState("");
-  const [obraSocial, setObraSocial] = useState("");
-  const [obraSocialOtro, setObraSocialOtro] = useState("");
-  const [nroAfiliado, setNroAfiliado] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [form, setForm] = useState<FormState>({
+    firstName: '',
+    lastName: '',
+    dni: '',
+    birthDate: '',
+    phone: '',
+    cobertura: '',
+    afiliado: '',
+    email: '',
+    password: '',
+  });
+  const [error, setError] = useState('');
+  const [info, setInfo] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [mensaje, setMensaje] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setForm((f) => ({ ...f, [name]: value }));
+  };
+
+  const passwordStrong = useMemo(() => {
+    const { password } = form;
+    return (
+      password.length >= 8 &&
+      /[A-ZÁÉÍÓÚÑ]/.test(password) &&
+      /\d/.test(password) &&
+      /[^A-Za-z0-9]/.test(password)
+    );
+  }, [form.password]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const coberturaFinal = obraSocial === "Otro" ? obraSocialOtro : obraSocial;
-    if (
-      !nombre || !apellido || !dni || !fechaNacimiento || !telefono ||
-      !coberturaFinal || !nroAfiliado || !email || !password
-    ) {
-      setMensaje("Por favor, completa todos los campos.");
+    setError('');
+    setInfo('');
+
+    if (!passwordStrong) {
+      setError('La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un símbolo.');
       return;
     }
-    if (!esContraseñaFuerte(password)) {
-      setMensaje("La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un símbolo.");
+
+    if (!form.firstName || !form.lastName || !form.dni || !form.birthDate || !form.phone || !form.cobertura || !form.email) {
+      setError('Completá todos los campos requeridos');
       return;
     }
+
+    if (form.cobertura !== 'Particular' && !form.afiliado) {
+      setError('Ingresá tu N° de afiliado');
+      return;
+    }
+
     setIsLoading(true);
+
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-      await setDoc(doc(db, "users", user.uid), {
-        nombre,
-        apellido,
-        dni,
-        fechaNacimiento,
-        telefono,
-        obraSocial: coberturaFinal,
-        nroAfiliado,
-        email,
+      const { user } = await createUserWithEmailAndPassword(auth, form.email, form.password);
+      await updateProfile(user, { displayName: `${form.firstName} ${form.lastName}`.trim() });
+
+      await setDoc(doc(db, 'users', user.uid), {
+        firstName: form.firstName,
+        lastName: form.lastName,
+        dni: form.dni,
+        birthDate: form.birthDate,
+        phone: form.phone,
+        cobertura: form.cobertura,
+        afiliado: form.afiliado || null,
+        email: form.email,
+        createdAt: serverTimestamp(),
       });
-      await sendEmailVerification(user);
-      setMensaje("Usuario registrado correctamente. Te enviamos un correo de verificación. Por favor, verifica tu email antes de ingresar.");
-      setTimeout(() => {
-        setMensaje(null);
-        navigate("/");
-      }, 4000);
-    } catch (e: any) {
-      let mensajeError = "Error al registrar usuario.";
-      if (e.code === "auth/email-already-in-use") {
-        mensajeError = "El correo ingresado ya está registrado. Si olvidaste tu contraseña, puedes recuperarla desde el inicio de sesión.";
+
+      try { await sendEmailVerification(user); } catch {}
+
+      setInfo('Cuenta creada. Te enviamos un email para verificar tu cuenta.');
+      navigate('/login');
+    } catch (error: any) {
+      console.error('Error de registro:', error);
+      let errorMessage = 'Error al crear la cuenta';
+      switch (error?.code) {
+        case 'auth/email-already-in-use':
+          errorMessage = 'Ya existe una cuenta con este email';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'Email inválido';
+          break;
+        case 'auth/operation-not-allowed':
+          errorMessage = 'Operación no permitida';
+          break;
+        case 'auth/weak-password':
+          errorMessage = 'La contraseña es muy débil';
+          break;
+        default:
+          errorMessage = error?.message || 'Error desconocido';
       }
-      setMensaje(mensajeError);
+      setError(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   return (
-    <div className="login-bg">
-      {/* Cartel flotante personalizado */}
-      {mensaje && (
-        <div className="alert-custom">
-          {mensaje}
-          <button onClick={() => setMensaje(null)} className="alert-close">X</button>
-        </div>
-      )}
-      <form className="login-form" onSubmit={handleRegister}>
-        <h2 style={{ textTransform: "uppercase", fontWeight: "bold", marginBottom: 24 }}>REGISTRO</h2>
-        <div style={{ display: "flex", gap: 12, width: "100%" }}>
-          <input
-            type="text"
-            placeholder="Nombre"
-            value={nombre}
-            onChange={e => setNombre(e.target.value)}
-            required
-            className="login-input"
-            style={{ flex: 1 }}
-          />
-          <input
-            type="text"
-            placeholder="Apellido"
-            value={apellido}
-            onChange={e => setApellido(e.target.value)}
-            required
-            className="login-input"
-            style={{ flex: 1 }}
-          />
-        </div>
-        <div style={{ display: "flex", gap: 12, width: "100%" }}>
-          <input
-            type="text"
-            placeholder="DNI"
-            value={dni}
-            onChange={e => setDni(e.target.value)}
-            required
-            className="login-input"
-            style={{ flex: 1 }}
-          />
-          <input
-            type="date"
-            placeholder="Fecha de nacimiento"
-            value={fechaNacimiento}
-            onChange={e => setFechaNacimiento(e.target.value)}
-            required
-            className="login-input"
-            style={{ flex: 1 }}
-          />
-        </div>
-        <input
-          type="tel"
-          placeholder="Número telefónico de contacto"
-          value={telefono}
-          onChange={e => setTelefono(e.target.value)}
-          required
-          className="login-input"
-        />
-        <div style={{ display: "flex", gap: 12, width: "100%" }}>
-          <select
-            value={obraSocial}
-            onChange={e => setObraSocial(e.target.value)}
-            required
-            className="login-input"
-            style={{ flex: 1 }}
-          >
-            <option value="">Selecciona tu cobertura</option>
-            {coberturas.map(c => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-            <option value="Otro">Otro</option>
-          </select>
-          {obraSocial === "Otro" && (
-            <input
-              type="text"
-              placeholder="Especifica tu cobertura"
-              value={obraSocialOtro}
-              onChange={e => setObraSocialOtro(e.target.value)}
-              required
-              className="login-input"
-              style={{ flex: 1 }}
-            />
-          )}
-          <input
-            type="text"
-            placeholder="N° de afiliado"
-            value={nroAfiliado}
-            onChange={e => setNroAfiliado(e.target.value)}
-            required
-            className="login-input"
-            style={{ flex: 1 }}
-          />
-        </div>
-        <input
-          type="email"
-          placeholder="Correo"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          required
-          className="login-input"
-        />
-        <input
-          type="password"
-          placeholder="Contraseña"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          required
-          className="login-input"
-        />
-        <small style={{ color: "#043A66", marginBottom: 10 }}>
-          La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un símbolo.
-        </small>
-        {isLoading ? (
-          <div className="login-loading">Cargando...</div>
-        ) : (
-          <button type="submit" className="login-btn">Registrarse</button>
-        )}
-        <button
-          type="button"
-          className="login-link"
-          onClick={() => navigate("/")}
-        >
-          Volver al login
-        </button>
-      </form>
+    <div className="register-container">
+      <div className="register-box">
+        <h2 className="register-title">Registro</h2>
+
+        {error && <div className="error-message">{error}</div>}
+        {info && <div className="info-message">{info}</div>}
+
+        <form onSubmit={handleSubmit} className="register-form">
+          <label className="field-label">Nombre
+            <input name="firstName" value={form.firstName} onChange={onChange} placeholder="" disabled={isLoading} autoComplete="given-name" enterKeyHint="next" />
+          </label>
+
+          <label className="field-label">Apellido
+            <input name="lastName" value={form.lastName} onChange={onChange} placeholder="" disabled={isLoading} autoComplete="family-name" enterKeyHint="next" />
+          </label>
+
+          <label className="field-label">DNI
+            <input name="dni" value={form.dni} onChange={onChange} placeholder="" inputMode="numeric" autoComplete="off" disabled={isLoading} enterKeyHint="next" />
+          </label>
+
+          <label className="field-label">Fecha de nacimiento
+            <input name="birthDate" type="date" value={form.birthDate} onChange={onChange} placeholder="dd/mm/aaaa" autoComplete="bday" disabled={isLoading} enterKeyHint="next" />
+          </label>
+
+          <label className="field-label">Número telefónico de contacto
+            <input name="phone" value={form.phone} onChange={onChange} placeholder="" inputMode="tel" autoComplete="tel" disabled={isLoading} enterKeyHint="next" />
+          </label>
+
+          <label className="field-label">Cobertura
+            <select name="cobertura" value={form.cobertura} onChange={onChange} disabled={isLoading} aria-label="Cobertura" >
+              <option value="" disabled>Selecciona tu cobertura</option>
+              {OBRAS.map((o) => (
+                <option key={o} value={o}>{o}</option>
+              ))}
+            </select>
+          </label>
+
+          <label className="field-label">N° de afiliado
+            <input name="afiliado" value={form.afiliado} onChange={onChange} placeholder="" disabled={isLoading || form.cobertura === ''} autoComplete="off" enterKeyHint="next" />
+          </label>
+
+          <label className="field-label">Email
+            <input name="email" type="email" value={form.email} onChange={onChange} placeholder="" disabled={isLoading} autoComplete="email" inputMode="email" enterKeyHint="next" />
+          </label>
+
+          <label className="field-label">Contraseña
+            <input name="password" type="password" value={form.password} onChange={onChange} placeholder="" disabled={isLoading} autoComplete="new-password" enterKeyHint="done" />
+          </label>
+
+          <div className="password-hint">La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un símbolo.</div>
+
+          <button type="submit" disabled={isLoading || !passwordStrong}>
+            {isLoading ? 'Registrando…' : 'Registrarse'}
+          </button>
+        </form>
+
+        <p className="login-link">¿Ya tienes cuenta? <Link to="/login">Iniciar sesión</Link></p>
+      </div>
     </div>
   );
 };
